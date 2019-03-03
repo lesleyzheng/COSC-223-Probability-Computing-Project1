@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
 class RandomSim{
@@ -166,81 +167,89 @@ class LRU{ //Least recently used
 
 class LFU{ //use a priority queue
 	
-//	PriorityQueue<Integer>
-//	//int cacheSize;
-//	int cacheCount = 0;
-//	
-//	//need to reset
-//	int hits;
-//	int totalCount;
-//	
-//	//debug
-//	boolean debug = false;
-//	
-//	public LFU(int s) { //input size //I AM HERE
-//		cacheSize = s;
-//	}
-//	
-//	public void addRequest(int request) {
-//		
-//		if (cache.contains(request)) {
-//			
-//			cache.remove(request);
-//			cache.add(request);
-//			hits++;
-//			
-//			if(debug)
-//				System.out.println("A");
-//			
-//		} else { //need to add to cache: add/replace?
-//			
-//			if (cacheCount<cacheSize) {//can just add
-//				
-//				cache.add(request);
-//				cacheCount++;
-//				
-//				if(debug)
-//					System.out.println("B");
-//				
-//			} else {//need to kick something out
-//				
-//				cache.remove();
-//				cache.add(request);
-//
-//				if(debug) {
-//					System.out.println("C");
-//					System.out.println(cache.size());
-//				}
-//				
-//			}
-//		}
-//		
-//		totalCount++;
-//		
-//		if (debug) {
-//			System.out.println("current cache: ");
-//			this.peek();
-//			System.out.println();
-//		}
-//		
-//	}//addRequest
-//	
-//	public void initialize() {
-//		hits = 0;
-//		totalCount = 0;
-//	}//initialize
-//	
-//	public double hitRate() {
-//		return hits/totalCount;
-//	}//hitRate
-//	
-//	public void peek() {
-//		this.initialize();
-//		System.out.println(cache.toArray());
-//	}//peek
+	Map<Integer, Integer> cache = new HashMap<Integer, Integer>();
+	int cacheSize;
+	int cacheCount = 0;
+	
+	//need to reset
+	int hits;
+	int totalCount;
+	
+	//debug
+	boolean debug = false;
+	
+	public LFU(int s) { //input size
+		cacheSize = s;
+	}
+	
+	public void addRequest(int request) {
+		
+		if (cache.containsKey(request)) {
+			
+			int current_value = cache.get(request);
+			cache.replace(request, current_value + 1);
+			hits++;
+			
+			if(debug)
+				System.out.println("A");
+			
+		} else { //need to add to cache: add/replace?
+			
+			if (cacheCount<cacheSize) {//can just add
+				
+				cache.put(request, 1); //value doesn't matter
+				cacheCount++;
+				
+				if(debug)
+					System.out.println("B");
+				
+			} else {//need to kick something out
+				
+				Entry<Integer, Integer> min = null;
+				for (Entry<Integer, Integer> entry : cache.entrySet()) {
+					if (min == null || min.getValue() > entry.getValue()) {
+						min = entry;
+					}//if
+				}//for
+				
+				int request_to_replace = min.getKey();
+				cache.remove(request_to_replace);
+				cache.put(request, 1);
+
+				if(debug) {
+					System.out.println("C");
+					System.out.println("request to replace " + request_to_replace);
+					System.out.println(cache.size());
+				}
+				
+			}//else - kicking something out
+		} //else
+		
+		totalCount++;
+		
+		if (debug) {
+			System.out.println("current cache: ");
+			this.peek();
+			System.out.println();
+		}
+		
+	}//addRequest
+	
+	public void initialize() {
+		hits = 0;
+		totalCount = 0;
+	}//initialize
+	
+	public double hitRate() {
+		return hits/totalCount;
+	}//hitRate
+	
+	public void peek() {
+		this.initialize();
+		System.out.println(cache.keySet());
+	}//peek
 	
 }
-
 
 public class CachingSimulator {
 	
