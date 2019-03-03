@@ -12,6 +12,9 @@ class RandomSim{
 	int hits;
 	int totalCount;
 	
+	//debug
+	boolean debug = false;
+	
 	public RandomSim(int s) { //input size
 		cacheSize = s;
 		keys = new int[s];
@@ -21,7 +24,10 @@ class RandomSim{
 		
 		if (cache.containsKey(request)) {
 			hits++;
-			System.out.println("A");
+			
+			if(debug)
+				System.out.println("A");
+			
 		} else { //need to add to cache: add/replace?
 			
 			if (cacheCount<cacheSize) {//can just add
@@ -29,24 +35,40 @@ class RandomSim{
 				cache.put(request, -1); //value doesn't matter
 				keys[cacheCount] = request;
 				cacheCount++;
-				System.out.println("B");
+				
+				if(debug)
+					System.out.println("B");
 				
 			} else {//need to kick something out
 				
 				int randomNum = ThreadLocalRandom.current().nextInt(0, cacheSize);
 				//https://stackoverflow.com/questions/363681/how-do-i-generate-random-integers-within-a-specific-range-in-java
+				
+				
 				int request_to_replace = keys[randomNum];
-				int removed = cache.remove(request_to_replace);
+				keys[randomNum] = request;
+				cache.remove(request_to_replace);
 				cache.put(request, -1);
-				System.out.println("C");
-				System.out.println(removed);
+
+				if(debug) {
+					System.out.println("C");
+					System.out.println("random num " + randomNum);
+					System.out.println("keys "+ Arrays.toString(keys));
+					System.out.println("request to replace " + request_to_replace);
+					System.out.println(cache.size());
+				}
 				
 			}
 		}
 		
 		totalCount++;
-		this.peek();
-	
+		
+		if (debug) {
+			System.out.println("current cache: ");
+			this.peek();
+			System.out.println();
+		}
+		
 	}//addRequest
 	
 	public void initialize() {
@@ -65,10 +87,165 @@ class RandomSim{
 	
 }//RandomSim
 
+class LRU{ //Least recently used
+	
+	LinkedList<Integer> cache = new LinkedList<Integer>();
+	int cacheSize;
+	int cacheCount = 0;
+	
+	//need to reset
+	int hits;
+	int totalCount;
+	
+	//debug
+	boolean debug = false;
+	
+	public LRU(int s) { //input size
+		cacheSize = s;
+	}
+	
+	public void addRequest(int request) {
+		
+		if (cache.contains(request)) {
+			
+			cache.remove(request);
+			cache.add(request);
+			hits++;
+			
+			if(debug)
+				System.out.println("A");
+			
+		} else { //need to add to cache: add/replace?
+			
+			if (cacheCount<cacheSize) {//can just add
+				
+				cache.add(request);
+				cacheCount++;
+				
+				if(debug)
+					System.out.println("B");
+				
+			} else {//need to kick something out
+				
+				cache.remove();
+				cache.add(request);
+
+				if(debug) {
+					System.out.println("C");
+					System.out.println(cache.size());
+				}
+				
+			}
+		}
+		
+		totalCount++;
+		
+		if (debug) {
+			System.out.println("current cache: ");
+			this.peek();
+			System.out.println();
+		}
+		
+	}//addRequest
+	
+	public void initialize() {
+		hits = 0;
+		totalCount = 0;
+	}//initialize
+	
+	public double hitRate() {
+		return hits/totalCount;
+	}//hitRate
+	
+	public void peek() {
+		this.initialize();
+		System.out.println(cache.toArray());
+	}//peek
+	
+}//LRU
+
+class LFU{ //use a priority queue
+	
+//	PriorityQueue<Integer>
+//	//int cacheSize;
+//	int cacheCount = 0;
+//	
+//	//need to reset
+//	int hits;
+//	int totalCount;
+//	
+//	//debug
+//	boolean debug = false;
+//	
+//	public LFU(int s) { //input size //I AM HERE
+//		cacheSize = s;
+//	}
+//	
+//	public void addRequest(int request) {
+//		
+//		if (cache.contains(request)) {
+//			
+//			cache.remove(request);
+//			cache.add(request);
+//			hits++;
+//			
+//			if(debug)
+//				System.out.println("A");
+//			
+//		} else { //need to add to cache: add/replace?
+//			
+//			if (cacheCount<cacheSize) {//can just add
+//				
+//				cache.add(request);
+//				cacheCount++;
+//				
+//				if(debug)
+//					System.out.println("B");
+//				
+//			} else {//need to kick something out
+//				
+//				cache.remove();
+//				cache.add(request);
+//
+//				if(debug) {
+//					System.out.println("C");
+//					System.out.println(cache.size());
+//				}
+//				
+//			}
+//		}
+//		
+//		totalCount++;
+//		
+//		if (debug) {
+//			System.out.println("current cache: ");
+//			this.peek();
+//			System.out.println();
+//		}
+//		
+//	}//addRequest
+//	
+//	public void initialize() {
+//		hits = 0;
+//		totalCount = 0;
+//	}//initialize
+//	
+//	public double hitRate() {
+//		return hits/totalCount;
+//	}//hitRate
+//	
+//	public void peek() {
+//		this.initialize();
+//		System.out.println(cache.toArray());
+//	}//peek
+	
+}
+
 
 public class CachingSimulator {
 	
 	int[] randoms = new int[30];
+	boolean debug = true;
 	
 	public CachingSimulator() {
 		
@@ -89,7 +266,9 @@ public class CachingSimulator {
 			
 			for (int j = 0; j<20; j++) {
 				randSim.addRequest(randoms[j]);
-				//randSim.peek();
+				
+				if (debug)
+					randSim.peek();
 			}
 			
 			//randSim.peek();
