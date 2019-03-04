@@ -251,7 +251,7 @@ class LFU{ //use a priority queue
 	
 }
 
-public class CachingSimulator {
+public class CachingSimulator extends Distribution{
 	
 	int[] randoms = new int[30];
 	boolean debug = true;
@@ -261,28 +261,100 @@ public class CachingSimulator {
 		System.out.println("start!");
 		
 		//Dummy Randoms
-		for (int n = 0; n<30; n++) {
-			int num = ThreadLocalRandom.current().nextInt(1, 1001);
-			randoms[n] = num;
-		}
+		// for (int n = 0; n<30; n++) {
+		// 	int num = ThreadLocalRandom.current().nextInt(1, 1001);
+		// 	randoms[n] = num;
+		// }
+
+		//To-Do: 1) add condition for which to not count the first 10^4 iterations
 		
 		//Random Simulator
-		for (int i = 10; i<11; i=i+10) {
+		for (int i = 10; i<11; i=i+10) { //change to modify varying cache size
 			
-			System.out.println("Random Simulation Cache Size " + i);
+			System.out.println("Random Simulation (Uniform) Cache Size " + i);
 			
 			RandomSim randSim = new RandomSim(i);
 			
-			for (int j = 0; j<20; j++) {
-				randSim.addRequest(randoms[j]);
+			for (int j = 0; j<100000; j++) {
+
+				randSim.addRequest(Distribution.uniformDist());
 				
 				if (debug)
 					randSim.peek();
 			}
+
+			System.out.println("Random Simulation (Zipf) Cache Size " + i);
 			
-			//randSim.peek();
+			RandomSim randSim2 = new RandomSim(i);
 			
-		}
+			for (int j = 0; j<100000; j++) {
+
+				randSim2.addRequest(Distribution.zipfDist());
+				
+				if (debug)
+					randSim2.peek();
+			}
+			
+		}//RandomSim
+
+		//LRU
+		for (int i = 10; i<11; i=i+10) { //change to modify varying cache size
+			
+			System.out.println("LRU Simulation (Uniform) Cache Size " + i);
+			
+			LRU LRUSim = new LRU(i);
+			
+			for (int j = 0; j<100000; j++) {
+
+				LRUSim.addRequest(Distribution.uniformDist());
+				
+				if (debug)
+					LRUSim.peek();
+			}
+
+			System.out.println("LRU Simulation (Zipf) Cache Size " + i);
+			
+			LRU LRUSim2 = new LRU(i);
+			
+			for (int j = 0; j<100000; j++) {
+
+				LRUSim2.addRequest(Distribution.zipfDist());
+				
+				if (debug)
+					LRUSim2.peek();
+			}
+			
+		}//LRU
+
+		//LFU
+		for (int i = 10; i<11; i=i+10) { //change to modify varying cache size
+			
+			System.out.println("LFU Simulation (Uniform) Cache Size " + i);
+			
+			LFU LFUSim = new LFU(i);
+			
+			for (int j = 0; j<100000; j++) {
+
+				LFUSim.addRequest(Distribution.uniformDist());
+				
+				if (debug)
+					LFUSim.peek();
+			}
+
+			System.out.println("LFU Simulation (Zipf) Cache Size " + i);
+			
+			LFU LFUSim2 = new LFU(i);
+			
+			for (int j = 0; j<100000; j++) {
+
+				LFUSim2.addRequest(Distribution.zipfDist());
+				
+				if (debug)
+					LFUSim2.peek();
+			}
+			
+		}//LFU
+
 		
 	}
 	
