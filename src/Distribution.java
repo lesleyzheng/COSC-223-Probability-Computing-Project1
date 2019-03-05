@@ -19,7 +19,7 @@ public class Distribution {
 				dist.add(i);
 			}
 		}
-		int d = dist.get(ThreadLocalRandom.current().nextInt(0,dist.size()+1));
+		int d = dist.get(ThreadLocalRandom.current().nextInt(0,dist.size()));
 		return d;
 	}
 }
