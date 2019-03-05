@@ -1,6 +1,7 @@
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.ArrayList;
 
 class RandomSim{
 	
@@ -249,6 +250,78 @@ class LFU{ //use a priority queue
 		System.out.println(cache.keySet());
 	}//peek
 	
+}
+
+class FIFO {
+	int cacheSize;
+	int totalCount;
+	ArrayList<Integer> cache = new ArrayList<Integer>();
+	int cacheCount=0;
+	int hits=0;
+
+	//debug
+	boolean debug = false;
+
+	public FIFO(int s) { //input size
+		cacheSize = s;
+	}
+
+	public void addRequest(int request) {
+
+		boolean inCache = false;
+
+		for (int i=0; i<= cacheSize; i++) {
+			if ((Integer)i==cache.get(i)) {
+				hits+=1;
+				inCache = true;
+
+				if(debug) {
+					System.out.println("A");
+				}
+				break;
+			}
+		}
+		if (inCache == false) {
+			if (cacheCount < cacheSize) {
+			cache.add((Integer)request);
+			cacheCount+=1;
+
+			if (debug){
+				System.out.println("B");
+			}
+			}
+			else {
+				cache.add((Integer)request);
+				cache.remove(0);
+
+				if(debug) {
+					System.out.println("C");
+					System.out.println(cache.size());
+				}
+			}
+		}
+		totalCount++;
+
+		if(debug) {
+			System.out.println("current cache: ");
+			this.peek();
+			System.out.println();
+		}
+	}
+	public void initialize() {
+		hits = 0;
+		totalCount = 0;
+	}//initialize
+	
+	public double hitRate() {
+		return hits/totalCount;
+	}//hitRate
+	
+	public void peek() {
+		this.initialize();
+		System.out.println(cache.toArray());
+	}//peek
+
 }
 
 public class CachingSimulator {
