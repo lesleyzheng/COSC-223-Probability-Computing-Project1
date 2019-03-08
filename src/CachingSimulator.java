@@ -13,10 +13,9 @@ class RandomSim{
 	//need to reset
 	int hits;
 	int totalCount;
-	int test;
 	
 	//debug
-	boolean debug = true;
+	boolean debug = false;
 	
 	public RandomSim(int s) { //input size
 		cacheSize = s;
@@ -24,6 +23,8 @@ class RandomSim{
 	}//constructor
 	
 	public void addRequest(int request) {
+
+		totalCount = totalCount + 1;
 		
 		if (cache.containsKey(request)) {
 			hits = hits + 1;
@@ -32,50 +33,44 @@ class RandomSim{
 				System.out.println("A");
 			
 		} else { //need to add to cache: add/replace?
-			
-			if (cacheCount<cacheSize) {//can just add
-				
+
+			if (cacheCount < cacheSize) {//can just add
+
 				cache.put(request, -1); //value doesn't matter
 				keys[cacheCount] = request;
 				cacheCount++;
-				
-				if(debug)
+
+				if (debug)
 					System.out.println("B");
-				
+
 			} else {//need to kick something out
-				
+
 				int randomNum = ThreadLocalRandom.current().nextInt(0, cacheSize);
 				//https://stackoverflow.com/questions/363681/how-do-i-generate-random-integers-within-a-specific-range-in-java
-				
-				
+
+
 				int request_to_replace = keys[randomNum];
 				keys[randomNum] = request;
 				cache.remove(request_to_replace);
 				cache.put(request, -1);
 
-				if(debug) {
+				if (debug) {
 					System.out.println("C");
 					System.out.println("random num " + randomNum);
-					System.out.println("keys "+ Arrays.toString(keys));
+					System.out.println("keys " + Arrays.toString(keys));
 					System.out.println("request to replace " + request_to_replace);
 					System.out.println("cache size" + cache.size());
 				}
-				
+
 			}
 		}
-
-		System.out.println(totalCount);
-		totalCount = totalCount + 1;
-		System.out.println(totalCount);
-
-		test = test + 1;
-		System.out.println(test);
 		
 		if (debug) {
 			System.out.println("current cache: ");
 			this.peek();
 			System.out.println("hits and count: " + hits + "  " + totalCount);
-			System.out.println();
+			System.out.println("----");
+
 		}
 		
 	}//addRequest
@@ -342,16 +337,18 @@ public class CachingSimulator extends Distribution{
 
 		System.out.println("start!");
 
-		RandomSim rando = new RandomSim(10);
+
 
 		if (debug){
-		for (int i = 0; i<50; i++){
-			rando.addRequest(uniformDist());
-			System.out.println("HERE");
-			System.out.println(rando.hits);
-			System.out.println(rando.totalCount);
-			System.out.println("-----");
-		}}
+			RandomSim rando = new RandomSim(10);
+			for (int i = 0; i<50; i++){
+				rando.addRequest(uniformDist());
+				System.out.println("HERE");
+				System.out.println(rando.hits);
+				System.out.println(rando.totalCount);
+				System.out.println("-----");
+			}
+		}
 
 
 		int[] cacheSizes = {10, 50, 100, 150, 200};
