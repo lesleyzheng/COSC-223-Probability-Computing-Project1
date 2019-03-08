@@ -3,6 +3,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.ArrayList;
 
+
 class RandomSim{
 	
 	Map<Integer, Integer> cache = new HashMap<Integer, Integer>();
@@ -369,7 +370,7 @@ public class CachingSimulator extends Distribution{
 
 	boolean debug = false;
 	
-	public CachingSimulator() {
+	public CachingSimulator(){
 
 		System.out.println("start!");
 
@@ -1017,6 +1018,8 @@ public class CachingSimulator extends Distribution{
             System.out.println(Arrays.toString(dataForTable[i]));
         }
 
+
+
 	} //constructor
 
 
@@ -1035,6 +1038,10 @@ public class CachingSimulator extends Distribution{
 		return Math.round(value * 100000d) / 100000d;
 
 	}
+
+
+
+
 
 	public static void main(String[] args) {
 
