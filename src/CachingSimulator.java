@@ -13,9 +13,10 @@ class RandomSim{
 	//need to reset
 	int hits;
 	int totalCount;
+	int test;
 	
 	//debug
-	boolean debug = false;
+	boolean debug = true;
 	
 	public RandomSim(int s) { //input size
 		cacheSize = s;
@@ -25,7 +26,7 @@ class RandomSim{
 	public void addRequest(int request) {
 		
 		if (cache.containsKey(request)) {
-			hits++;
+			hits = hits + 1;
 			
 			if(debug)
 				System.out.println("A");
@@ -57,17 +58,23 @@ class RandomSim{
 					System.out.println("random num " + randomNum);
 					System.out.println("keys "+ Arrays.toString(keys));
 					System.out.println("request to replace " + request_to_replace);
-					System.out.println(cache.size());
+					System.out.println("cache size" + cache.size());
 				}
 				
 			}
 		}
-		
-		totalCount++;
+
+		System.out.println(totalCount);
+		totalCount = totalCount + 1;
+		System.out.println(totalCount);
+
+		test = test + 1;
+		System.out.println(test);
 		
 		if (debug) {
 			System.out.println("current cache: ");
 			this.peek();
+			System.out.println("hits and count: " + hits + "  " + totalCount);
 			System.out.println();
 		}
 		
@@ -76,14 +83,19 @@ class RandomSim{
 	public void initialize() {
 		hits = 0;
 		totalCount = 0;
+		System.out.println("initialize here!");
 	}//initialize
 	
 	public double hitRate() {
+		System.out.println(hits + "  " + totalCount);
+		if (totalCount==0){
+			System.out.println("zero denominator");
+			return 0;
+		}
 		return hits/totalCount;
 	}//hitRate
 	
 	public void peek() {
-		this.initialize();
 		System.out.println(cache.keySet());
 	}//peek
 	
@@ -160,7 +172,6 @@ class LRU{ //Least recently used
 	}//hitRate
 	
 	public void peek() {
-		this.initialize();
 		System.out.println(cache.toArray());
 	}//peek
 	
@@ -246,7 +257,6 @@ class LFU{ //use a priority queue
 	}//hitRate
 	
 	public void peek() {
-		this.initialize();
 		System.out.println(cache.keySet());
 	}//peek
 	
@@ -318,7 +328,6 @@ class FIFO {
 	}//hitRate
 	
 	public void peek() {
-		this.initialize();
 		System.out.println(cache.toArray());
 	}//peek
 
@@ -333,7 +342,19 @@ public class CachingSimulator extends Distribution{
 
 		System.out.println("start!");
 
-		int[] cacheSizes = {0, 50, 100, 150, 200};
+		RandomSim rando = new RandomSim(10);
+
+		if (debug){
+		for (int i = 0; i<50; i++){
+			rando.addRequest(uniformDist());
+			System.out.println("HERE");
+			System.out.println(rando.hits);
+			System.out.println(rando.totalCount);
+			System.out.println("-----");
+		}}
+
+
+		int[] cacheSizes = {10, 50, 100, 150, 200};
 
 		Object[][] dataForTable = new Object[40][4];
 
@@ -351,29 +372,37 @@ public class CachingSimulator extends Distribution{
 
 					RandomSim rando = new RandomSim(cacheS);
 
-					for (int counter = 0; counter < 100000; counter++) { //calculating hit rate
+					for (int counter = 0; counter < 100; counter++) { //calculating hit rate; 100000
 
 						rando.addRequest(uniformDist());
 
-						if (counter == 10001) {
+						if (debug) {
+
+							System.out.println("count " + counter + ", random cache policy, cache size " + cacheS + ", repetition " + repeat + ", current hit rate " + rando.hitRate());
+
+						}
+
+						if (counter == 51) {
 
 							rando.initialize(); //toss out first 10^4
+
+							if (debug){
+								System.out.println("Initilized.");
+							}
 
 						}
 
 					}
 
 					double hRate = rando.hitRate();
-
-					if (debug) {
-
-						System.out.println("debugging random cache policy, cache size " + cacheS + ", repetition " + repeat + ", and hit rate " + hRate);
-
-					}
-
 					forAverage[repeat] = hRate;
 
-				}
+					if (debug){
+
+						System.out.println("final hit rate " + hRate);
+					}
+
+				}//repeats
 
 				double hitRate = average(forAverage);
 
