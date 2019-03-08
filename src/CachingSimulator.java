@@ -280,15 +280,14 @@ class LFU{ //use a priority queue
 }
 
 class FIFO {
-
 	int cacheSize;
-	double totalCount;
+	int totalCount;
 	ArrayList<Integer> cache = new ArrayList<Integer>();
 	int cacheCount=0;
-	double hits=0;
+	int hits=0;
 
 	//debug
-	boolean debug = true;
+	boolean debug = false;
 
 	public FIFO(int s) { //input size
 		cacheSize = s;
@@ -298,25 +297,19 @@ class FIFO {
 
 		boolean inCache = false;
 
-		for (int i=0; i<cache.size(); i++) {
-			if ((Integer)i==cache.get(i)) {
+		for (int i=0; i <cache.size(); i++) {
+			if (i==cache.get(i)) {
 				hits+=1;
+				System.out.println("hits: " + hits);
 				inCache = true;
 
-				if(debug) {
-					System.out.println("A");
-				}
 				break;
 			}
 		}
 		if (inCache == false) {
-			if (cacheCount < cacheSize) {
+			if (cache.size() < cacheSize) {
 			cache.add((Integer)request);
-			cacheCount+=1;
 
-			if (debug){
-				System.out.println("B");
-			}
 			}
 			else {
 				cache.add((Integer)request);
@@ -328,7 +321,7 @@ class FIFO {
 				}
 			}
 		}
-		totalCount++;
+		totalCount=totalCount+1;
 
 		if(debug) {
 			System.out.println("current cache: ");
@@ -339,27 +332,22 @@ class FIFO {
 	public void initialize() {
 		hits = 0;
 		totalCount = 0;
-
-		if (debug){
-			System.out.println("initialized!");
-		}
-
 	}//initialize
 
 	public double hitRate() {
-
+		System.out.println("totalCount: " + totalCount);
 		if (totalCount==0){
 			System.out.println("zero denominator");
 			return 0;
 		}
 
-		double value = hits/totalCount;
+		double value = hits/(double)totalCount;
 		return (double)Math.round(value * 100000d) / 100000d;
 
 	}//hitRate
 	
 	public void peek() {
-		System.out.println(cache.toArray());
+		System.out.println(Arrays.toString(cache.toArray()));
 	}//peek
 
 }
