@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Distribution {
 
 	public static int uniformDist(){
-		int d = ThreadLocalRandom.current().nextInt(1,10001);
+		int d = ThreadLocalRandom.current().nextInt(1,1001);
 		return d;
 	}
 
