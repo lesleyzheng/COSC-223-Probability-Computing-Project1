@@ -285,7 +285,7 @@ class FIFO {
 
 	int cacheSize;
 	double totalCount;
-	ArrayList<Integer> cache = new ArrayList<Integer>();
+	LinkedList<Integer> cache = new LinkedList<Integer>();
 	int cacheCount=0;
 	double hits=0;
 
@@ -298,46 +298,46 @@ class FIFO {
 
 	public void addRequest(int request) {
 
-		boolean inCache = false;
+		if (cache.contains(request)) {
 
-		for (int i=0; i<cache.size(); i++) {
-			if ((Integer)i==cache.get(i)) {
-				hits+=1;
-				inCache = true;
+			hits++;
 
-				if(debug) {
-					System.out.println("A");
-				}
-				break;
-			}
-		}
-		if (inCache == false) {
-			if (cacheCount < cacheSize) {
-			cache.add((Integer)request);
-			cacheCount+=1;
+			if(debug)
+				System.out.println("A");
 
-			if (debug){
-				System.out.println("B");
-			}
-			}
-			else {
-				cache.add((Integer)request);
-				cache.remove(0);
+		} else { //need to add to cache: add/replace?
+
+			if (cacheCount<cacheSize) {//can just add
+
+				cache.add(request);
+				cacheCount++;
+
+				if(debug)
+					System.out.println("B");
+
+			} else {//need to kick something out
+
+				cache.removeFirst();
+				cache.add(request);
 
 				if(debug) {
 					System.out.println("C");
 					System.out.println(cache.size());
 				}
+
 			}
 		}
+
 		totalCount++;
 
-		if(debug) {
+		if (debug) {
 			System.out.println("current cache: ");
 			this.peek();
 			System.out.println();
 		}
 	}
+
+
 	public void initialize() {
 		hits = 0;
 		totalCount = 0;
