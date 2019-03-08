@@ -11,8 +11,8 @@ class RandomSim{
 	int[] keys;
 	
 	//need to reset
-	int hits;
-	int totalCount;
+	double hits;
+	double totalCount;
 	
 	//debug
 	boolean debug = false;
@@ -78,16 +78,18 @@ class RandomSim{
 	public void initialize() {
 		hits = 0;
 		totalCount = 0;
-		System.out.println("initialize here!");
 	}//initialize
 	
 	public double hitRate() {
-		System.out.println(hits + "  " + totalCount);
+
 		if (totalCount==0){
 			System.out.println("zero denominator");
 			return 0;
 		}
-		return hits/totalCount;
+
+		double value = hits/totalCount;
+		return (double)Math.round(value * 100000d) / 100000d;
+
 	}//hitRate
 	
 	public void peek() {
@@ -161,9 +163,17 @@ class LRU{ //Least recently used
 		hits = 0;
 		totalCount = 0;
 	}//initialize
-	
+
 	public double hitRate() {
-		return hits/totalCount;
+
+		if (totalCount==0){
+			System.out.println("zero denominator");
+			return 0;
+		}
+
+		double value = hits/totalCount;
+		return (double)Math.round(value * 100000d) / 100000d;
+
 	}//hitRate
 	
 	public void peek() {
@@ -246,9 +256,17 @@ class LFU{ //use a priority queue
 		hits = 0;
 		totalCount = 0;
 	}//initialize
-	
+
 	public double hitRate() {
-		return hits/totalCount;
+
+		if (totalCount==0){
+			System.out.println("zero denominator");
+			return 0;
+		}
+
+		double value = hits/totalCount;
+		return (double)Math.round(value * 100000d) / 100000d;
+
 	}//hitRate
 	
 	public void peek() {
@@ -275,7 +293,7 @@ class FIFO {
 
 		boolean inCache = false;
 
-		for (int i=0; i<= cacheSize; i++) {
+		for (int i=0; i<= cache.size(); i++) {
 			if ((Integer)i==cache.get(i)) {
 				hits+=1;
 				inCache = true;
@@ -317,9 +335,17 @@ class FIFO {
 		hits = 0;
 		totalCount = 0;
 	}//initialize
-	
+
 	public double hitRate() {
-		return hits/totalCount;
+
+		if (totalCount==0){
+			System.out.println("zero denominator");
+			return 0;
+		}
+
+		double value = hits/totalCount;
+		return (double)Math.round(value * 100000d) / 100000d;
+
 	}//hitRate
 	
 	public void peek() {
@@ -337,20 +363,6 @@ public class CachingSimulator extends Distribution{
 
 		System.out.println("start!");
 
-
-
-		if (debug){
-			RandomSim rando = new RandomSim(10);
-			for (int i = 0; i<50; i++){
-				rando.addRequest(uniformDist());
-				System.out.println("HERE");
-				System.out.println(rando.hits);
-				System.out.println(rando.totalCount);
-				System.out.println("-----");
-			}
-		}
-
-
 		int[] cacheSizes = {10, 50, 100, 150, 200};
 
 		Object[][] dataForTable = new Object[40][4];
@@ -358,64 +370,138 @@ public class CachingSimulator extends Distribution{
 		//Distribution: Uniform (uniformDist)
 
 		//Policy: Random
-		//Vary Cache Size
-		for (int tableRow = 0; tableRow < 5; tableRow++) {
+		//Varying Cache Size
 
-			for (int cacheS : cacheSizes) {
+		int tableRow = 0; //row 0 to 4
+//		for (int cacheS : cacheSizes) {
+//
+//			tableRow++;
+//
+//			double[] forAverage = new double[5];
+//
+//			for (int repeat = 0; repeat < 5; repeat++) {//repeat to get average
+//				RandomSim rando = new RandomSim(cacheS);
+//
+//				for (int counter = 0; counter < 100; counter++) { //calculating hit rate; 100000
+//
+//					rando.addRequest(uniformDist());
+//					if (counter == 51) {
+//						rando.initialize(); //toss out first 10^4
+//					}
+//
+//				}
+//
+//				double hRate = rando.hitRate();
+//				forAverage[repeat] = hRate;
+//
+//				if (debug){
+//					System.out.println("distribution uniform, random cache policy, cache size " + cacheS + ", repetition " + repeat + ", hit rate " + rando.hitRate());
+//				}
+//
+//			}//repeats
+//
+//			double hitRate = average(forAverage);
+//
+//			dataForTable[tableRow][0] = "Uniform";
+//			dataForTable[tableRow][1] = "Random";
+//			dataForTable[tableRow][2] = cacheS;
+//			dataForTable[tableRow][3] = hitRate;
+//			//{"Uniform", "Random", cacheS, hitRate};
+//		}
+//
+//		for (int i = 0; i < dataForTable.length; i++){
+//			System.out.println(Arrays.toString(dataForTable[i]));
+//		}
 
-				double[] forAverage = new double[5];
+		//Policy: LRU
+		//Varying Cache Size
 
-				for (int repeat = 0; repeat < 5; repeat++) {//repeat to get average
+		tableRow = 5; //row 5 to 9
+		for (int cacheS : cacheSizes) {
 
-					RandomSim rando = new RandomSim(cacheS);
+			tableRow++;
 
-					for (int counter = 0; counter < 100; counter++) { //calculating hit rate; 100000
+			double[] forAverage = new double[5];
 
-						rando.addRequest(uniformDist());
+			for (int repeat = 0; repeat < 5; repeat++) {//repeat to get average
+				LRU myLRU = new LRU(cacheS);
 
-						if (debug) {
+				for (int counter = 0; counter < 100; counter++) { //calculating hit rate; 100000
 
-							System.out.println("count " + counter + ", random cache policy, cache size " + cacheS + ", repetition " + repeat + ", current hit rate " + rando.hitRate());
-
-						}
-
-						if (counter == 51) {
-
-							rando.initialize(); //toss out first 10^4
-
-							if (debug){
-								System.out.println("Initilized.");
-							}
-
-						}
-
+					myLRU.addRequest(uniformDist());
+					if (counter == 51) {
+						myLRU.initialize(); //toss out first 10^4
 					}
 
-					double hRate = rando.hitRate();
-					forAverage[repeat] = hRate;
+				}
 
-					if (debug){
+				double hRate = myLRU.hitRate();
+				forAverage[repeat] = hRate;
 
-						System.out.println("final hit rate " + hRate);
+				if (debug){
+					System.out.println("distribution uniform, LRU policy, cache size " + cacheS + ", repetition " + repeat + ", hit rate " + myLRU.hitRate());
+				}
+
+			}//repeats
+
+			double hitRate = average(forAverage);
+
+			dataForTable[tableRow][0] = "Uniform";
+			dataForTable[tableRow][1] = "LRU";
+			dataForTable[tableRow][2] = cacheS;
+			dataForTable[tableRow][3] = hitRate;
+			//{"Uniform", "Random", cacheS, hitRate};
+		}
+
+		for (int i = 0; i < dataForTable.length; i++){
+			System.out.println(Arrays.toString(dataForTable[i]));
+		}
+
+		//Policy: LFU
+		//Varying Cache Size
+
+		tableRow = 10; //row 10 to 14
+		for (int cacheS : cacheSizes) {
+
+			tableRow++;
+
+			double[] forAverage = new double[5];
+
+			for (int repeat = 0; repeat < 5; repeat++) {//repeat to get average
+				LFU myLFU = new LFU(cacheS);
+
+				for (int counter = 0; counter < 100; counter++) { //calculating hit rate; 100000
+
+					myLFU.addRequest(uniformDist());
+					if (counter == 51) {
+						myLFU.initialize(); //toss out first 10^4
 					}
 
-				}//repeats
+				}
 
-				double hitRate = average(forAverage);
+				double hRate = myLFU.hitRate();
+				forAverage[repeat] = hRate;
 
-				dataForTable[tableRow][0] = "Uniform";
-				dataForTable[tableRow][1] = "Random";
-				dataForTable[tableRow][2] = cacheS;
-				dataForTable[tableRow][3] = hitRate;
-				//{"Uniform", "Random", cacheS, hitRate};
+				if (debug){
+					System.out.println("distribution uniform, LFU policy, cache size " + cacheS + ", repetition " + repeat + ", hit rate " + myLFU.hitRate());
+				}
 
-			}
-		}//bigger iter
+			}//repeats
 
-		dataForTable.toString();
+			double hitRate = average(forAverage);
 
+			dataForTable[tableRow][0] = "Uniform";
+			dataForTable[tableRow][1] = "LFU";
+			dataForTable[tableRow][2] = cacheS;
+			dataForTable[tableRow][3] = hitRate;
+			//{"Uniform", "Random", cacheS, hitRate};
+		}
 
-	}
+		for (int i = 0; i < dataForTable.length; i++){
+			System.out.println(Arrays.toString(dataForTable[i]));
+		}
+
+	} //constructor
 
 
 	public double average(double[] myArray) {
@@ -428,7 +514,9 @@ public class CachingSimulator extends Distribution{
 
 		}
 
-		return sum/myArray.length;
+		double value = sum/(double)myArray.length;
+
+		return Math.round(value * 100000d) / 100000d;
 
 	}
 
