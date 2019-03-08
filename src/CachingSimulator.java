@@ -20,7 +20,7 @@ class RandomSim{
 	public RandomSim(int s) { //input size
 		cacheSize = s;
 		keys = new int[s];
-	}
+	}//constructor
 	
 	public void addRequest(int request) {
 		
@@ -324,45 +324,91 @@ class FIFO {
 
 }
 
-public class CachingSimulator {
+public class CachingSimulator extends Distribution{
 	
 	int[] randoms = new int[30];
 	boolean debug = true;
 	
 	public CachingSimulator() {
-		
+
 		System.out.println("start!");
-		
-		//Dummy Randoms
-		for (int n = 0; n<30; n++) {
-			int num = ThreadLocalRandom.current().nextInt(1, 1001);
-			randoms[n] = num;
-		}
-		
-		//Random Simulator
-		for (int i = 10; i<11; i=i+10) {
-			
-			System.out.println("Random Simulation Cache Size " + i);
-			
-			RandomSim randSim = new RandomSim(i);
-			
-			for (int j = 0; j<20; j++) {
-				randSim.addRequest(randoms[j]);
-				
-				if (debug)
-					randSim.peek();
+
+		int[] cacheSizes = {0, 50, 100, 150, 200};
+
+		Object[][] dataForTable = new Object[40][4];
+
+		//Distribution: Uniform (uniformDist)
+
+		//Policy: Random
+		//Vary Cache Size
+		for (int tableRow = 0; tableRow < 5; tableRow++) {
+
+			for (int cacheS : cacheSizes) {
+
+				double[] forAverage = new double[5];
+
+				for (int repeat = 0; repeat < 5; repeat++) {//repeat to get average
+
+					RandomSim rando = new RandomSim(cacheS);
+
+					for (int counter = 0; counter < 100000; counter++) { //calculating hit rate
+
+						rando.addRequest(uniformDist());
+
+						if (counter == 10001) {
+
+							rando.initialize(); //toss out first 10^4
+
+						}
+
+					}
+
+					double hRate = rando.hitRate();
+
+					if (debug) {
+
+						System.out.println("debugging random cache policy, cache size " + cacheS + ", repetition " + repeat + ", and hit rate " + hRate);
+
+					}
+
+					forAverage[repeat] = hRate;
+
+				}
+
+				double hitRate = average(forAverage);
+
+				dataForTable[tableRow][0] = "Uniform";
+				dataForTable[tableRow][1] = "Random";
+				dataForTable[tableRow][2] = cacheS;
+				dataForTable[tableRow][3] = hitRate;
+				//{"Uniform", "Random", cacheS, hitRate};
+
 			}
-			
-			//randSim.peek();
-			
-		}
-		
-	}
-	
-	public static void main(String[] args) {
-		
-		System.out.println("main");
-		CachingSimulator mainInstance = new CachingSimulator();
+		}//bigger iter
+
+		dataForTable.toString();
+
+
 	}
 
+
+	public double average(double[] myArray) {
+
+		double sum = 0;
+
+		for (double item:myArray) {
+
+			sum+=item;
+
+		}
+
+		return sum/myArray.length;
+
+	}
+
+	public static void main(String[] args) {
+
+		System.out.println("main");
+		CachingSimulator mainInstance = new CachingSimulator();
+	}//main
 }
